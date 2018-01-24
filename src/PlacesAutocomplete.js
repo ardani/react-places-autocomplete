@@ -54,17 +54,18 @@ class PlacesAutocomplete extends Component {
       secondaryText: structured_formatting.secondary_text,
     })
 
-    const { highlightFirstSuggestion } = this.props
+    const { highlightFirstSuggestion, autoCompletes } = this.props
 
-    this.setState({
-      autocompleteItems: predictions.map((p, idx) => ({
-        suggestion: p.description,
-        placeId: p.place_id,
-        active: highlightFirstSuggestion && idx === 0 ? true : false,
-        index: idx,
-        formattedSuggestion: formattedSuggestion(p.structured_formatting),
-      })),
-    })
+    let autocompleteItems = predictions.map((p, idx) => ({
+      suggestion: p.description,
+      placeId: p.place_id,
+      active: highlightFirstSuggestion && idx === 0 ? true : false,
+      index: idx,
+      formattedSuggestion: formattedSuggestion(p.structured_formatting),
+    }))
+
+    autoCompletes(autocompleteItems)
+    this.setState({ autocompleteItems })
   }
 
   fetchPredictions() {
@@ -262,22 +263,31 @@ class PlacesAutocomplete extends Component {
         this.handleInputOnBlur(event)
       },
       style: this.inlineStyleFor('input'),
-      className: this.classNameFor('input'),
+      className: 'form-control',
     }
   }
 
   render() {
     const { autocompleteItems } = this.state
+    const { disableSuggest } = this.props
     const inputProps = this.getInputProps()
 
     return (
       <div
         id="PlacesAutocomplete__root"
         style={this.inlineStyleFor('root')}
-        className={this.classNameFor('root')}
+        className="input-group"
       >
+        <span className="input-group-addon">
+          <i className="icon ion-android-search"></i>
+        </span>
         <input {...inputProps} />
-        {autocompleteItems.length > 0 && (
+        <span className="input-group-btn">
+          <button className="btn btn-clear" type="button">
+            <i className="icon ion-android-close"></i>
+          </button>
+        </span>
+        {autocompleteItems.length > 0 && disableSuggest && (
           <div
             id="PlacesAutocomplete__autocomplete-container"
             style={this.inlineStyleFor('autocompleteContainer')}
@@ -338,6 +348,7 @@ PlacesAutocomplete.propTypes = {
   onError: PropTypes.func,
   onSelect: PropTypes.func,
   renderSuggestion: PropTypes.func,
+  autoCompletes: PropTypes.func,
   classNames: PropTypes.shape({
     root: PropTypes.string,
     input: PropTypes.string,
@@ -362,6 +373,7 @@ PlacesAutocomplete.propTypes = {
   }),
   debounce: PropTypes.number,
   highlightFirstSuggestion: PropTypes.bool,
+  disableSuggest: PropTypes.bool,
   renderFooter: PropTypes.func,
   shouldFetchSuggestions: PropTypes.func.isRequired,
 }
@@ -374,6 +386,8 @@ PlacesAutocomplete.defaultProps = {
     ),
   classNames: {},
   renderSuggestion: ({ suggestion }) => <div>{suggestion}</div>,
+  disableSuggest: true,
+  autoCompletes: (autoCompletes) => autoCompletes,
   styles: {},
   options: {},
   debounce: 200,

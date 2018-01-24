@@ -6,7 +6,7 @@
   "scripts": {
     "commit": "git-cz",
     "watch:test": "npm t -- -w",
-    "test": "mocha src/tests/setup.js src/tests/index.spec.js",
+    "test": "",
     "prebuild": "rimraf dist",
     "build": "npm-run-all --parallel build:*",
     "build:main": "babel --copy-files --out-dir dist --ignore *.spec.js src",
